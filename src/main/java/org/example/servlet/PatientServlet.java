@@ -1,0 +1,143 @@
+package org.example.servlet;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.Exception.MyClassException;
+import org.example.dao.PatientDAO;
+import org.example.model.Patient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+import java.io.Serial;
+import java.sql.*;
+
+@WebServlet("/patient")
+public class PatientServlet extends HttpServlet {
+    @Serial
+    private static final long serialVersionUID=1L;
+    private static final Logger logger= LoggerFactory.getLogger(PatientServlet.class);
+    private final PatientDAO pd = new PatientDAO();
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response)  {
+       logger.info("patientServlet-doPost Started");
+
+       try {
+           String name=request.getParameter("name");
+           String agestr=request.getParameter("age");
+           String gender=request.getParameter("gender");
+           String dobstr=request.getParameter("dob");
+           String phone=request.getParameter("phone");
+           String city=request.getParameter("city");
+           String bloodGroup=request.getParameter("bloodGroup");
+           if((name==null || name.trim().isEmpty()) || (agestr==null || agestr.trim().isEmpty()) || (gender==null || gender.trim().isEmpty()))
+                    {
+               response.sendError(HttpServletResponse.SC_BAD_REQUEST,"All fields are required");
+               return;
+           }
+           if((phone==null || phone.trim().isEmpty()) || (dobstr==null || dobstr.trim().isEmpty())
+                   || (bloodGroup==null || bloodGroup.trim().isEmpty()) || (city==null || city.trim().isEmpty())){
+               response.sendError(HttpServletResponse.SC_BAD_REQUEST,"All fields are required");
+               return;
+           }
+           int age;
+           Date dob;
+           try{
+           age=Integer.parseInt(agestr.trim());
+           dob=Date.valueOf(dobstr.trim());
+           }catch(IllegalArgumentException e) {
+              logger.warn("Invalid age or date format",e);
+              response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Invalid age or date format" );
+              return;
+           }
+           Patient p=new Patient();
+           p.setName(name);
+           p.setAge(age);
+           p.setGender(gender);
+           p.setDateOfBirth (dob);
+           p.setPhone(phone);
+           p.setCity(city);
+           p.setBloodGroup(bloodGroup);
+           pd.create(p);
+           logger.info("patient saved successfully:{}", p.getName());
+           response.sendRedirect("patient.html");
+       } catch(Exception e){
+           logger.error("Database error",e);
+           response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+           throw new MyClassException("Error creating patient details",e);
+       }
+
+
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+    {
+       logger.info("PatientServlet-doGet started");
+       response.setContentType("text/html");
+       try(PrintWriter out=response.getWriter()) {
+           out.println("<h2> Patient List </h2>");
+           pd.findAll().forEach(Patient->{
+               out.println(
+                   Patient.getPatientId()+"|"+Patient.getName()+"|" +Patient.getAge()+"|"+Patient.getGender()+"|"
+                  +"|"+Patient.getDateOfBirth()+"|"+Patient.getBloodGroup()+"|"+ Patient.getPhone()+"|"+Patient.getCity()
+               );
+               logger.info("Patient details fetched successfully");
+           });
+       } catch(Exception e){
+           logger.error("database error:",e);
+           response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+          throw new MyClassException("Error fetching patient details:",e);
+       }
+    }
+
+    @Override
+    public void doPut(HttpServletRequest request, HttpServletResponse response)
+    {
+
+        try {
+            logger.info("PatientServlet-doPut started");
+            ObjectMapper mapper=new ObjectMapper();
+            Patient p=mapper.readValue(request.getInputStream(),Patient.class);
+            boolean updated=pd.update(p);
+            response.setContentType("application/json");
+
+            if (updated) {
+                response.getWriter().write("{\"message\":\"Patient updated successfully\"}");
+            }else{
+                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                response.getWriter().write("{\"message\":\"Patient not found\"}");
+            }
+        } catch(Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+        }
+    }
+    @Override
+    public void doDelete(HttpServletRequest request,HttpServletResponse response)  {
+
+        try {
+            logger.info("PatientServlet-doDelete started");
+            String idStr=request.getParameter("id");
+            if(idStr==null){
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST,"patient_id is required");
+            }
+            int id= Integer.parseInt(idStr);
+
+            boolean deleted=pd.delete(id);
+            response.setContentType("application/json");
+            if(deleted) {
+                response.getWriter().write("{\"message\":\"patient deleted successfully\"}");
+            } else{
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            }
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+        }
+    }
+
+}
+
+
