@@ -1,5 +1,5 @@
 package org.example.dao;
-import org.example.DBConnection;
+import org.example.configs.DBConnection;
 import org.example.Exception.MyClassException;
 import org.example.model.Doctor;
 import org.slf4j.Logger;

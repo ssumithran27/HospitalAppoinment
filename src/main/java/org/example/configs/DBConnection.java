@@ -1,4 +1,4 @@
-package org.example;
+package org.example.configs;
 import org.example.Exception.MyClassException;
 
 import java.io.FileInputStream;

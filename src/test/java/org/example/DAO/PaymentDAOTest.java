@@ -1,6 +1,6 @@
 package org.example.DAO;
 
-import org.example.DBConnection;
+import org.example.configs.DBConnection;
 import org.example.dao.PaymentDAO;
 import org.example.model.Payment;
 import org.junit.jupiter.api.AfterEach;
