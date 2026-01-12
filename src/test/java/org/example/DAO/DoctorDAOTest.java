@@ -29,21 +29,23 @@ public class DoctorDAOTest {
         preparedStatement = mock(PreparedStatement.class);
         resultSet = mock(ResultSet.class);
         mockedDB = mockStatic(DBConnection.class);
-        mockedDB.when(DBConnection::getConnection).thenReturn(connection);
+        mockedDB.when(DBConnection::getConnect).thenReturn(connection);
     }
     @AfterEach
     void tearDown() {
-        mockedDB.close();
+        if(mockedDB !=null) {
+            mockedDB.close();
+        }
     }
 
 
     @Test
     void testCreateDoctor()throws Exception{
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         Doctor d=new Doctor();
         d.setName("Ab");
         d.setSpecialization("ortho");
         d.setAvailability("yes");
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         doctorDAO.create(d);
         verify(preparedStatement).setString(1,"Ab");
         verify(preparedStatement).setString(2,"ortho");
@@ -65,13 +67,13 @@ public class DoctorDAOTest {
     }
     @Test
     void testUpdatePatient() throws Exception{
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeUpdate()).thenReturn(1);
         Doctor d= new Doctor();
         d.setDoctorId(1);
         d.setName("Ab");
         d.setSpecialization("ortho");
         d.setAvailability("yes");
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(1);
         boolean updated =doctorDAO.update(d);
         assertTrue(updated);
         verify(preparedStatement).setString(1,"Ab");

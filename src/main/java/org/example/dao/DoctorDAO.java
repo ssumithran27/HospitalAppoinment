@@ -13,16 +13,20 @@ import java.util.List;
 
 public class DoctorDAO {
     private static final Logger logger = LoggerFactory.getLogger(DoctorDAO.class);
+    static final int Doctor_Id=1;
+    static final int Doctor_Name=2;
+    static final int Doctor_Specialization=3;
+    static final int Doctor_Availability=4;
     public void create (Doctor d) {
         String sql="""
                    INSERT INTO doctor(name,specialization,availability)
                     VALUES (?,?,?)""";
 
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setString(1,d.getName());
-            ps.setString(2,d.getSpecialization());
-            ps.setString(3,d.getAvailability());
+            ps.setString(Doctor_Name,d.getName());
+            ps.setString(Doctor_Specialization,d.getSpecialization());
+            ps.setString(Doctor_Availability,d.getAvailability());
            int affectedRows= ps.executeUpdate();
             if(affectedRows==0){
                 logger.error("Insert failed,no rows affected for doctor{} :",d.getDoctorId());
@@ -39,7 +43,7 @@ public class DoctorDAO {
         String sql="""
                   select doctor_id,name,specialization,availability from doctor
                   """;
-        try(Connection con =DBConnection.getConnection();
+        try(Connection con =DBConnection.getConnect().getConnection();
             PreparedStatement ps =con.prepareStatement(sql);
             ResultSet rs=ps.executeQuery()) {
             while (rs.next()){
@@ -61,12 +65,12 @@ public class DoctorDAO {
         String sql= "update doctor set name=?,specialization=?,availability=? where doctor_id=?";
 
          boolean update=false;
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setString (1,d.getName());
-            ps.setString(2,d.getSpecialization());
-            ps.setString(3,d.getAvailability());
-            ps.setInt(4,d.getDoctorId());
+            ps.setString (Doctor_Name,d.getName());
+            ps.setString(Doctor_Specialization,d.getSpecialization());
+            ps.setString(Doctor_Availability,d.getAvailability());
+            ps.setInt(Doctor_Id,d.getDoctorId());
             update= ps.executeUpdate()>0;
         } catch (SQLException e) {
             throw new MyClassException("Error updating doctor details: ",e);
@@ -79,9 +83,9 @@ public class DoctorDAO {
                    delete from patient where doctor_id=?""";
         boolean delete=false;
 
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt(1,id);
+            ps.setInt(Doctor_Id,id);
             delete= ps.executeUpdate()>0;
         } catch (SQLException e) {
             throw new MyClassException("Error deleting doctor details: ",e);

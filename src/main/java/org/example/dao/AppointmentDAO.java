@@ -11,17 +11,22 @@ import java.util.List;
 
 public class AppointmentDAO {
     private static final Logger logger = LoggerFactory.getLogger(AppointmentDAO.class);
+    static final int Appointment_Id=1;
+    static final int Patient_Id =2;
+    static final int Doctor_Id=3;
+    static final int Appointment_Date=4;
+    static final int Appointment_Time=5;
     public void create(Appointment a)  {
         String sql= """
                 INSERT INTO appointment (patient_id,doctor_id,appointment_date,
                 appointment_time) VALUES (?,?,?,?)
                 """;
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps= con.prepareStatement(sql)) {
-            ps.setInt(1,a.getPatientId());
-            ps.setInt(2,a.getDoctorId());
-            ps.setDate(3,(Date) a.getAppointmentDate());
-            ps.setString(4,a.getAppointmentTime());
+            ps.setInt(Patient_Id,a.getPatientId());
+            ps.setInt(Doctor_Id,a.getDoctorId());
+            ps.setDate(Appointment_Date,(Date) a.getAppointmentDate());
+            ps.setString(Appointment_Time,a.getAppointmentTime());
             int affectedRows=ps.executeUpdate();
             if(affectedRows==0){
                 logger.error("Insert failed,no rows affected for appointment{} :",a.getAppointmentId());
@@ -39,7 +44,7 @@ public class AppointmentDAO {
         String sql="""
                   select appointment_id,patient_id,doctor_id,appointment_date,appointment_time from appointment
                   """;
-        try(Connection con =DBConnection.getConnection();
+        try(Connection con =DBConnection.getConnect().getConnection();
             PreparedStatement ps =con.prepareStatement(sql);
             ResultSet rs=ps.executeQuery()) {
             while (rs.next()){
@@ -60,13 +65,13 @@ public class AppointmentDAO {
     public boolean update(Appointment a) {
         String sql= "update patient set patient_id=?,doctor_id=?,appointment_date=?,appointment_time=?,status=?where appointment_id=?";
         boolean update=false;
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt(1,a.getPatientId());
-            ps.setInt(2,a.getDoctorId());
-            ps.setDate(3,a.getAppointmentDate());
-            ps.setString (4,a.getAppointmentTime());
-            ps.setInt(5,a.getAppointmentId());
+            ps.setInt(Patient_Id,a.getPatientId());
+            ps.setInt(Doctor_Id,a.getDoctorId());
+            ps.setDate(Appointment_Date,a.getAppointmentDate());
+            ps.setString (Appointment_Time,a.getAppointmentTime());
+            ps.setInt(Appointment_Id,a.getAppointmentId());
             update= ps.executeUpdate()>0;
         }catch(SQLException e){
            throw new MyClassException("Error updating appointment details:",e);
@@ -80,7 +85,7 @@ public class AppointmentDAO {
 
         boolean delete=false;
 
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
             ps.setInt(1,id);
             delete= ps.executeUpdate()>0;

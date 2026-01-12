@@ -13,6 +13,14 @@ import java.util.List;
 
 
 public class PatientDAO {
+    static final int Patient_Id=1;
+    static final int Patient_Name=2;
+    static final int Patient_Age=3;
+    static final int Patient_Gender=4;
+    static final int Patient_DateOfBirth=5;
+    static final int Patient_PhoneNo=6;
+    static final int Patient_City=7;
+    static final int Patient_BloodGroup=8;
     private static final Logger logger = LoggerFactory.getLogger(PatientDAO.class);
     public void create (Patient p) {
         String sql= """
@@ -20,15 +28,15 @@ public class PatientDAO {
                 INSERT INTO patient (name,age,gender,date_of_birth,phone,city,blood_group)
                values (?,?,?,?,?,?,?)
                       """;
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps =con.prepareStatement(sql)) {
-            ps.setString (1,p.getName());
-            ps.setInt(2,p.getAge());
-            ps.setString(3,p.getGender());
-            ps.setDate(4, p.getDateOfBirth());
-            ps.setString (5,p.getPhone());
-            ps.setString(6,p.getCity());
-            ps.setString(7,p.getBloodGroup());
+            ps.setString (Patient_Name,p.getName());
+            ps.setInt(Patient_Age,p.getAge());
+            ps.setString(Patient_Gender,p.getGender());
+            ps.setDate(Patient_DateOfBirth, p.getDateOfBirth());
+            ps.setString (Patient_PhoneNo,p.getPhone());
+            ps.setString(Patient_City,p.getCity());
+            ps.setString(Patient_BloodGroup,p.getBloodGroup());
             int affectedRows=ps.executeUpdate();
             if(affectedRows==0){
                 logger.error("Insert failed,no rows affected for patient{} :",p.getPatientId());
@@ -45,7 +53,7 @@ public class PatientDAO {
         String sql="""
                   select patient_id,name,age,gender,date_of_birth,phone,city,blood_group from patient
                   """;
-        try(Connection con =DBConnection.getConnection();
+        try(Connection con =DBConnection.getConnect().getConnection();
         PreparedStatement ps =con.prepareStatement(sql);
 
         ResultSet rs=ps.executeQuery()) {
@@ -71,17 +79,17 @@ public class PatientDAO {
         String sql= """
     UPDATE patient SET name=?,age=?,gender=?,date_of_birth=?,phone=?,city=?,blood_group=? where patient_id=?""";
         boolean update=false;
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
 
-            ps.setString (1,p.getName());
-            ps.setInt(2,p.getAge());
-            ps.setString(3,p.getGender());
-            ps.setDate(4, p.getDateOfBirth());
-            ps.setString (5,p.getPhone());
-            ps.setString(6,p.getCity());
-            ps.setString(7,p.getBloodGroup());
-            ps.setInt(8,p.getPatientId());
+            ps.setString (Patient_Name,p.getName());
+            ps.setInt(Patient_Age,p.getAge());
+            ps.setString(Patient_Gender,p.getGender());
+            ps.setDate(Patient_DateOfBirth, p.getDateOfBirth());
+            ps.setString (Patient_PhoneNo,p.getPhone());
+            ps.setString(Patient_City,p.getCity());
+            ps.setString(Patient_BloodGroup,p.getBloodGroup());
+            ps.setInt(Patient_Id,p.getPatientId());
             update=ps.executeUpdate()>0;
         }catch(SQLException e){
             throw new MyClassException("Error Updating patient details:",e);
@@ -94,9 +102,9 @@ public class PatientDAO {
                     delete from patient where patient_id=?""";
         boolean delete=false;
 
-        try(Connection con= DBConnection.getConnection();
+        try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt(1,id);
+            ps.setInt(Patient_Id,id);
             delete= ps.executeUpdate()>0;
         }catch(SQLException e){
             throw new MyClassException("Error Deleting patient details:",e);

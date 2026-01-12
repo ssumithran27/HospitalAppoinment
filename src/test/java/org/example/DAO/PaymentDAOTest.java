@@ -1,5 +1,6 @@
 package org.example.DAO;
 
+import org.example.Exception.MyClassException;
 import org.example.configs.DBConnection;
 import org.example.dao.PaymentDAO;
 import org.example.model.Payment;
@@ -32,26 +33,28 @@ public class PaymentDAOTest {
         preparedStatement = mock(PreparedStatement.class);
         resultSet = mock(ResultSet.class);
         mockedDB = mockStatic(DBConnection.class);
-        mockedDB.when(DBConnection::getConnection).thenReturn(connection);
+        mockedDB.when(DBConnection::getConnect).thenReturn(connection);
     }
     @AfterEach
     void tearDown() {
-        mockedDB.close();
+        if(mockedDB !=null) {
+            mockedDB.close();
+        }
     }
 
 
     @Test
     void testCreateAppointment()throws Exception{
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        Payment py=new Payment();
 
+        Payment py=new Payment();
         py.setAppointmentId(101);
         py.setAmount(4000.00);
         py.setPaymentType("cash");
         py.setPaymentStatus("completed");
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         paymentDAO.create(py);
         verify(preparedStatement).setInt(1,101);
-        verify(preparedStatement).setDouble(2,(4000.00));
+        verify(preparedStatement).setDouble(2,4000.00);
         verify(preparedStatement).setString(3,"cash");
         verify(preparedStatement).setString(4,"completed");
         verify(preparedStatement).executeUpdate();
@@ -72,14 +75,14 @@ public class PaymentDAOTest {
     }
     @Test
     void testUpdatePatient() throws Exception{
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeUpdate()).thenReturn(1);
         Payment py= new Payment();
         py.setPaymentId(1);
         py.setAppointmentId(110);
         py.setAmount(6000.00);
         py.setPaymentType("credit");
         py.setPaymentStatus("completed");
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(1);
         boolean updated =paymentDAO.update(py);
         assertTrue(updated);
         verify(preparedStatement).setInt(1,110);

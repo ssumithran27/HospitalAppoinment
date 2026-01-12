@@ -1,5 +1,5 @@
 package org.example.DAO;
-
+import org.example.Exception.MyClassException;
 import org.example.configs.DBConnection;
 import org.example.dao.PatientDAO;
 import org.example.model.Patient;
@@ -7,14 +7,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
 import java.sql.*;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class PatientDAOTest {
+public class PatientDAOTest {
 private PatientDAO patientDAO;
 private Connection connection;
 private PreparedStatement preparedStatement;
@@ -22,23 +20,24 @@ private ResultSet resultSet;
 private MockedStatic<DBConnection> mockedDB;
 
 @BeforeEach
- void setUp() throws Exception {
+ void setUp() throws MyClassException  {
     patientDAO = new PatientDAO();
     connection = mock(Connection.class);
     preparedStatement = mock(PreparedStatement.class);
     resultSet = mock(ResultSet.class);
     mockedDB = mockStatic(DBConnection.class);
-    mockedDB.when(DBConnection::getConnection).thenReturn(connection);
+    mockedDB.when(DBConnection::getConnect).thenReturn(connection);
 }
 @AfterEach
  void tearDown() {
-    mockedDB.close();
+    if(mockedDB !=null){
+        mockedDB.close();
+    }
 }
 
 
 @Test
  void testCreatePatient()throws Exception{
-    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
     Patient p=new Patient();
     p.setName("John");
     p.setAge(30);
@@ -47,6 +46,7 @@ private MockedStatic<DBConnection> mockedDB;
     p.setPhone("9876543210");
     p.setCity("Chennai");
     p.setBloodGroup("AB+");
+    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
      patientDAO.create(p);
      verify(preparedStatement).setString(1,"John");
      verify(preparedStatement).setInt(2,30);
@@ -76,8 +76,6 @@ private MockedStatic<DBConnection> mockedDB;
 }
 @Test
     void testUpdatePatient() throws Exception{
-    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-    when(preparedStatement.executeUpdate()).thenReturn(1);
     Patient p= new Patient();
     p.setPatientId(1);
     p.setName("Bob");
@@ -87,6 +85,8 @@ private MockedStatic<DBConnection> mockedDB;
     p.setPhone("9876543212");
     p.setCity("Coimbatore");
     p.setBloodGroup("O+");
+    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+    when(preparedStatement.executeUpdate()).thenReturn(1);
     boolean updated =patientDAO.update(p);
     assertTrue(updated);
     verify(preparedStatement).setString(1,"Bob");

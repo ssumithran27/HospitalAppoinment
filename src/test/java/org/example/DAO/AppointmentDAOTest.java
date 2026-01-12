@@ -33,22 +33,24 @@ public class AppointmentDAOTest {
         preparedStatement = mock(PreparedStatement.class);
         resultSet = mock(ResultSet.class);
         mockedDB = mockStatic(DBConnection.class);
-        mockedDB.when(DBConnection::getConnection).thenReturn(connection);
+        mockedDB.when(DBConnection::getConnect).thenReturn(connection);
     }
     @AfterEach
     void tearDown() {
-        mockedDB.close();
+        if(mockedDB !=null) {
+            mockedDB.close();
+        }
     }
 
 
     @Test
     void testCreateAppointment()throws Exception{
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         Appointment a=new Appointment();
         a.setPatientId(1);
         a.setDoctorId(100);
         a.setAppointmentDate(Date.valueOf("2025-01-01"));
         a.setAppointmentTime("17:20:10");
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         appointmentDAO.create(a);
         verify(preparedStatement).setInt(1,1);
         verify(preparedStatement).setInt(2,100);
@@ -72,14 +74,15 @@ public class AppointmentDAOTest {
     }
     @Test
     void testUpdatePatient() throws Exception{
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeUpdate()).thenReturn(1);
+
         Appointment a= new Appointment();
         a.setAppointmentId(1);
         a.setPatientId(101);
         a.setDoctorId(100);
         a.setAppointmentDate(Date.valueOf("2025-01-03"));
         a.setAppointmentTime("18:15:40");
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(1);
         boolean updated =appointmentDAO.update(a);
         assertTrue(updated);
         verify(preparedStatement).setInt(1,101);
