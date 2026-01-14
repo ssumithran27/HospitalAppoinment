@@ -13,10 +13,11 @@ import java.util.List;
 
 public class DoctorDAO {
     private static final Logger logger = LoggerFactory.getLogger(DoctorDAO.class);
-    static final int Doctor_Id=1;
-    static final int Doctor_Name=2;
-    static final int Doctor_Specialization=3;
-    static final int Doctor_Availability=4;
+
+    static final int Doctor_Name=1;
+    static final int Doctor_Specialization=2;
+    static final int Doctor_Availability=3;
+    static final int Doctor_Id=4;
     public void create (Doctor d) {
         String sql="""
                    INSERT INTO doctor(name,specialization,availability)

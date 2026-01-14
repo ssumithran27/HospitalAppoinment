@@ -1,11 +1,12 @@
-package org.example.DAO;
+package org.example.dao;
 import org.example.configs.DBConnection;
-import org.example.dao.DoctorDAO;
 import org.example.model.Doctor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,15 +22,18 @@ public class DoctorDAOTest {
     private PreparedStatement preparedStatement;
     private ResultSet resultSet;
     private MockedStatic<DBConnection> mockedDB;
+    private DataSource dataSource;
 
     @BeforeEach
     void setUp() throws Exception {
         doctorDAO = new DoctorDAO();
+        dataSource=mock(DataSource.class);
         connection = mock(Connection.class);
         preparedStatement = mock(PreparedStatement.class);
         resultSet = mock(ResultSet.class);
         mockedDB = mockStatic(DBConnection.class);
-        mockedDB.when(DBConnection::getConnect).thenReturn(connection);
+        mockedDB.when(DBConnection::getConnect).thenReturn(dataSource);
+        when(dataSource.getConnection()).thenReturn(connection);
     }
     @AfterEach
     void tearDown() {
@@ -88,7 +92,7 @@ public class DoctorDAOTest {
         when(preparedStatement.executeUpdate()).thenReturn(1);
         boolean deleted= doctorDAO.delete(1);
         assertTrue(deleted);
-        verify(preparedStatement).setInt(1,1);
+        verify(preparedStatement).setInt(4,1);
         verify(preparedStatement).executeUpdate();
     }
 }

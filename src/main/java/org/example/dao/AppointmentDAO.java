@@ -11,11 +11,12 @@ import java.util.List;
 
 public class AppointmentDAO {
     private static final Logger logger = LoggerFactory.getLogger(AppointmentDAO.class);
-    static final int Appointment_Id=1;
-    static final int Patient_Id =2;
-    static final int Doctor_Id=3;
-    static final int Appointment_Date=4;
-    static final int Appointment_Time=5;
+
+    static final int Patient_Id =1;
+    static final int Doctor_Id=2;
+    static final int Appointment_Date=3;
+    static final int Appointment_Time=4;
+    static final int Appointment_Id=5;
     public void create(Appointment a)  {
         String sql= """
                 INSERT INTO appointment (patient_id,doctor_id,appointment_date,

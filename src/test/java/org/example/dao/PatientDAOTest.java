@@ -1,12 +1,11 @@
-package org.example.DAO;
-import org.example.Exception.MyClassException;
+package org.example.dao;
 import org.example.configs.DBConnection;
-import org.example.dao.PatientDAO;
 import org.example.model.Patient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,15 +17,18 @@ private Connection connection;
 private PreparedStatement preparedStatement;
 private ResultSet resultSet;
 private MockedStatic<DBConnection> mockedDB;
+private DataSource dataSource;
 
 @BeforeEach
- void setUp() throws MyClassException  {
+ void setUp() throws Exception  {
     patientDAO = new PatientDAO();
+    dataSource=mock(DataSource.class);
     connection = mock(Connection.class);
     preparedStatement = mock(PreparedStatement.class);
     resultSet = mock(ResultSet.class);
     mockedDB = mockStatic(DBConnection.class);
-    mockedDB.when(DBConnection::getConnect).thenReturn(connection);
+    mockedDB.when(DBConnection::getConnect).thenReturn(dataSource);
+    when(dataSource.getConnection()).thenReturn(connection);
 }
 @AfterEach
  void tearDown() {
@@ -47,7 +49,7 @@ private MockedStatic<DBConnection> mockedDB;
     p.setCity("Chennai");
     p.setBloodGroup("AB+");
     when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-     patientDAO.create(p);
+    patientDAO.create(p);
      verify(preparedStatement).setString(1,"John");
      verify(preparedStatement).setInt(2,30);
      verify(preparedStatement).setString(3,"Male");
@@ -106,7 +108,7 @@ private MockedStatic<DBConnection> mockedDB;
     when(preparedStatement.executeUpdate()).thenReturn(1);
     boolean deleted= patientDAO.delete(1);
     assertTrue(deleted);
-    verify(preparedStatement).setInt(1,1);
+    verify(preparedStatement).setInt(8,1);
     verify(preparedStatement).executeUpdate();
 }
 }

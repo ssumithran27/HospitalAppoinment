@@ -13,11 +13,12 @@ import java.util.List;
 
 public class PaymentDAO {
     private static final Logger logger = LoggerFactory.getLogger(PaymentDAO.class);
-    static final int Payment_Id=1;
-    static final int Appointment_Id=2;
-    static final int Payment_Amount=3;
-    static final int Payment_Type=4;
-    static final int Payment_Status=5;
+
+    static final int Appointment_Id=1;
+    static final int Payment_Amount=2;
+    static final int Payment_Type=3;
+    static final int Payment_Status=4;
+    static final int Payment_Id=5;
     public void create(Payment py) throws Exception {
         String sql= """
                 INSERT INTO payment (appointment_id,amount,payment_type,payment_status)

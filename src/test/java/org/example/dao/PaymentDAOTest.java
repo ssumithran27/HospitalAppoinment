@@ -1,14 +1,13 @@
-package org.example.DAO;
+package org.example.dao;
 
-import org.example.Exception.MyClassException;
 import org.example.configs.DBConnection;
-import org.example.dao.PaymentDAO;
 import org.example.model.Payment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,15 +24,19 @@ public class PaymentDAOTest {
     private PreparedStatement preparedStatement;
     private ResultSet resultSet;
     private MockedStatic<DBConnection> mockedDB;
+    private DataSource dataSource;
 
     @BeforeEach
     void setUp() throws Exception {
-        paymentDAO = new PaymentDAO();
+
+        dataSource=mock(DataSource.class);
         connection = mock(Connection.class);
         preparedStatement = mock(PreparedStatement.class);
         resultSet = mock(ResultSet.class);
         mockedDB = mockStatic(DBConnection.class);
-        mockedDB.when(DBConnection::getConnect).thenReturn(connection);
+        mockedDB.when(DBConnection::getConnect).thenReturn(dataSource);
+        when(dataSource.getConnection()).thenReturn(connection);
+        paymentDAO = new PaymentDAO();
     }
     @AfterEach
     void tearDown() {
@@ -45,7 +48,6 @@ public class PaymentDAOTest {
 
     @Test
     void testCreateAppointment()throws Exception{
-
         Payment py=new Payment();
         py.setAppointmentId(101);
         py.setAmount(4000.00);
@@ -75,6 +77,7 @@ public class PaymentDAOTest {
     }
     @Test
     void testUpdatePatient() throws Exception{
+
         Payment py= new Payment();
         py.setPaymentId(1);
         py.setAppointmentId(110);
@@ -99,6 +102,6 @@ public class PaymentDAOTest {
         when(preparedStatement.executeUpdate()).thenReturn(1);
         boolean deleted= paymentDAO.delete(1);
         assertTrue(deleted);
-        verify(preparedStatement).setInt(1,1);
+        verify(preparedStatement).setInt(5,1);
     }
 }

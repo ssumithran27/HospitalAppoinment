@@ -13,21 +13,18 @@ import java.util.List;
 
 
 public class PatientDAO {
-    static final int Patient_Id=1;
-    static final int Patient_Name=2;
-    static final int Patient_Age=3;
-    static final int Patient_Gender=4;
-    static final int Patient_DateOfBirth=5;
-    static final int Patient_PhoneNo=6;
-    static final int Patient_City=7;
-    static final int Patient_BloodGroup=8;
+
+    static final int Patient_Name=1;
+    static final int Patient_Age=2;
+    static final int Patient_Gender=3;
+    static final int Patient_DateOfBirth=4;
+    static final int Patient_PhoneNo=5;
+    static final int Patient_City=6;
+    static final int Patient_BloodGroup=7;
+    static final int Patient_Id=8;
     private static final Logger logger = LoggerFactory.getLogger(PatientDAO.class);
-    public void create (Patient p) {
-        String sql= """
-                      
-                INSERT INTO patient (name,age,gender,date_of_birth,phone,city,blood_group)
-               values (?,?,?,?,?,?,?)
-                      """;
+    public void create (Patient p) throws Exception {
+        String sql= " INSERT INTO patient (name,age,gender,date_of_birth,phone,city,blood_group) values (?,?,?,?,?,?,?)";
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps =con.prepareStatement(sql)) {
             ps.setString (Patient_Name,p.getName());
