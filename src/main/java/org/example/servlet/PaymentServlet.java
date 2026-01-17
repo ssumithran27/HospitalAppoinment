@@ -1,7 +1,5 @@
 package org.example.servlet;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.Exception.MyClassException;
 import org.example.dao.PaymentDAO;
 import org.example.model.Payment;
 import org.slf4j.Logger;
@@ -10,22 +8,21 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.PrintWriter;
-import java.io.Serial;
+
+
 
 
 @WebServlet("/payment")
-public class PaymentServlet extends HttpServlet  {
-    @Serial
-    private static final long serialVersionUID=1L;
-    private static final Logger logger= LoggerFactory.getLogger(PaymentServlet.class);
+public class PaymentServlet extends HttpServlet   {
+
+    private static final Logger LOGGER= LoggerFactory.getLogger(PaymentServlet.class);
     private final PaymentDAO pyd=new PaymentDAO();
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) {
+    public void doPost(HttpServletRequest request, HttpServletResponse response)  {
 
         try {
-            logger.info("PaymentServlet-doPost Started");
+            LOGGER.info("PaymentServlet-doPost Started");
             String appointmentIdStr=request.getParameter("appointmentId");
             String amountStr=request.getParameter("amount");
             String paymentType=request.getParameter("paymentType");
@@ -35,28 +32,32 @@ public class PaymentServlet extends HttpServlet  {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,"All fields are required");
                 return;
             }
-
+            int appointmentId;
+            double amount;
             try{
-                Integer.parseInt(appointmentIdStr);
-                Double.parseDouble(amountStr);
-
+                appointmentId=Integer.parseInt(appointmentIdStr);
+                amount=Double.parseDouble(amountStr);
             }catch(NumberFormatException e) {
+                LOGGER.warn("Invalid ID or Amount",e);
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
+              return;
             }
-            int appointmentId=Integer.parseInt(appointmentIdStr);
-            double amount=Double.parseDouble(amountStr);
-
-
             Payment py=new Payment();
             py.setAppointmentId(appointmentId);
             py.setAmount(amount);
             py.setPaymentType(paymentType);
             py.setPaymentStatus(paymentStatus);
-            pyd.create(py);
-            logger.info("payment saved successfully:"+py.getPaymentId());
-            response.sendRedirect("payment.html");
+            try{
+                pyd.create(py);
+                LOGGER.info("payment saved successfully:{}",py.getPaymentId());
+                response.sendRedirect("payment.html");
+            }catch(Exception e){
+                LOGGER.error("database error while saving  appointment",e);
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+
         } catch (Exception e) {
+            LOGGER.error("database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
@@ -64,21 +65,21 @@ public class PaymentServlet extends HttpServlet  {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
     {
-        logger.info("PaymentServlet-doGet started");
+        LOGGER.info("PaymentServlet-doGet started");
         response.setContentType("text/html");
         try(PrintWriter out=response.getWriter()) {
             out.println("<h2> Payment List </h2>");
-            pyd.findAll().forEach(Payment->{
+            pyd.findAll().forEach(payment->{
                 out.println(
-                        Payment.getPaymentId()+"|"+Payment.getAppointmentId()+"|"+Payment.getAmount()+"|"+Payment.getPaymentType()+"|"+Payment.getPaymentStatus()
+                        payment.getPaymentId()+"|"+payment.getAppointmentId()+"|"+payment.getAmount()+"|"+payment.getPaymentType()+"|"+payment.getPaymentStatus()
 
                 );
-                logger.info("Payment details fetched successfully");
+                LOGGER.info("Payment details fetched successfully");
             });
         }catch (Exception e){
-            logger.error("Database error",e);
+            LOGGER.error("Database error",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error in creating Payment details",e);
+
         }
     }
 
@@ -87,7 +88,7 @@ public class PaymentServlet extends HttpServlet  {
     {
 
         try {
-            logger.info("PaymentServlet-doPut started");
+            LOGGER.info("PaymentServlet-doPut started");
             ObjectMapper mapper=new ObjectMapper();
             Payment py=mapper.readValue(request.getInputStream(),Payment.class);
             boolean updated=pyd.update(py);
@@ -101,7 +102,7 @@ public class PaymentServlet extends HttpServlet  {
                 response.getWriter().write("{\"message\":\"Payment not found\"}");
             }
         } catch(Exception e) {
-            logger.error("Database error",e);
+            LOGGER.error("Database error",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
         }
@@ -111,7 +112,7 @@ public class PaymentServlet extends HttpServlet  {
     {
 
         try {
-            logger.info("DoctorServlet-doDelete started");
+            LOGGER.info("DoctorServlet-doDelete started");
             String idStr=request.getParameter("id");
 
             if(idStr==null){
@@ -127,7 +128,7 @@ public class PaymentServlet extends HttpServlet  {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (Exception e) {
-            logger.error("database error:",e);
+            LOGGER.error("database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
         }

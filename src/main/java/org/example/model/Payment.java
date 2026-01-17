@@ -47,5 +47,7 @@ public class Payment {
         this.paymentStatus = paymentStatus;
     }
 
-
+    public Payment(){
+        super();
+    }
 }

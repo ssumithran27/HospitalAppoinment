@@ -47,5 +47,8 @@ public class Appointment {
         this.appointmentTime = appointmentTime;
     }
 
+    public Appointment(){
+        super();
+    }
 
 }

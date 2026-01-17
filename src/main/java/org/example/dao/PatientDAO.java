@@ -1,6 +1,6 @@
 package org.example.dao;
 import org.example.configs.DBConnection;
-import org.example.Exception.MyClassException;
+import org.example.exception.MyClassException;
 import org.example.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,32 +14,32 @@ import java.util.List;
 
 public class PatientDAO {
 
-    static final int Patient_Name=1;
-    static final int Patient_Age=2;
-    static final int Patient_Gender=3;
-    static final int Patient_DateOfBirth=4;
-    static final int Patient_PhoneNo=5;
-    static final int Patient_City=6;
-    static final int Patient_BloodGroup=7;
-    static final int Patient_Id=8;
-    private static final Logger logger = LoggerFactory.getLogger(PatientDAO.class);
+    static final int PATIENT_NAME=1;
+    static final int PATIENT_AGE=2;
+    static final int PATIENT_GENDER=3;
+    static final int PATIENT_DATE_OF_BIRTH=4;
+    static final int PATIENT_PHONENO=5;
+    static final int PATIENT_CITY=6;
+    static final int PATIENT_BLOODGROUP=7;
+    static final int PATIENT_ID=8;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PatientDAO.class);
     public void create (Patient p) throws Exception {
         String sql= " INSERT INTO patient (name,age,gender,date_of_birth,phone,city,blood_group) values (?,?,?,?,?,?,?)";
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps =con.prepareStatement(sql)) {
-            ps.setString (Patient_Name,p.getName());
-            ps.setInt(Patient_Age,p.getAge());
-            ps.setString(Patient_Gender,p.getGender());
-            ps.setDate(Patient_DateOfBirth, p.getDateOfBirth());
-            ps.setString (Patient_PhoneNo,p.getPhone());
-            ps.setString(Patient_City,p.getCity());
-            ps.setString(Patient_BloodGroup,p.getBloodGroup());
+            ps.setString (PATIENT_NAME,p.getName());
+            ps.setInt(PATIENT_AGE,p.getAge());
+            ps.setString(PATIENT_GENDER,p.getGender());
+            ps.setDate(PATIENT_DATE_OF_BIRTH, p.getDateOfBirth());
+            ps.setString (PATIENT_PHONENO,p.getPhone());
+            ps.setString(PATIENT_CITY,p.getCity());
+            ps.setString(PATIENT_BLOODGROUP,p.getBloodGroup());
             int affectedRows=ps.executeUpdate();
             if(affectedRows==0){
-                logger.error("Insert failed,no rows affected for patient{} :",p.getPatientId());
+                LOGGER.error("Insert failed,no rows affected for patient{} :",p.getPatientId());
             }
             else{
-                logger.info("successfully inserted the patient details{}: ",p.getPatientId());
+                LOGGER.info("successfully inserted the patient details{}: ",p.getPatientId());
             }
         } catch (SQLException e) {
             throw new MyClassException("Error Creating patient details:",e);
@@ -65,7 +65,6 @@ public class PatientDAO {
                 p.setCity(rs.getString("city"));
                 p.setBloodGroup(rs.getString("blood_group"));
                 patients.add(p);
-
             }
         } catch(SQLException e) {
             throw new MyClassException("Error Fetching patient details:",e);
@@ -75,18 +74,17 @@ public class PatientDAO {
     public boolean update(Patient p)  {
         String sql= """
     UPDATE patient SET name=?,age=?,gender=?,date_of_birth=?,phone=?,city=?,blood_group=? where patient_id=?""";
-        boolean update=false;
+        boolean update;
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-
-            ps.setString (Patient_Name,p.getName());
-            ps.setInt(Patient_Age,p.getAge());
-            ps.setString(Patient_Gender,p.getGender());
-            ps.setDate(Patient_DateOfBirth, p.getDateOfBirth());
-            ps.setString (Patient_PhoneNo,p.getPhone());
-            ps.setString(Patient_City,p.getCity());
-            ps.setString(Patient_BloodGroup,p.getBloodGroup());
-            ps.setInt(Patient_Id,p.getPatientId());
+            ps.setString (PATIENT_NAME,p.getName());
+            ps.setInt(PATIENT_AGE,p.getAge());
+            ps.setString(PATIENT_GENDER,p.getGender());
+            ps.setDate(PATIENT_DATE_OF_BIRTH, p.getDateOfBirth());
+            ps.setString (PATIENT_PHONENO,p.getPhone());
+            ps.setString(PATIENT_CITY,p.getCity());
+            ps.setString(PATIENT_BLOODGROUP,p.getBloodGroup());
+            ps.setInt(PATIENT_ID,p.getPatientId());
             update=ps.executeUpdate()>0;
         }catch(SQLException e){
             throw new MyClassException("Error Updating patient details:",e);
@@ -97,11 +95,12 @@ public class PatientDAO {
     public boolean delete(int id)  {
         String sql="""
                     delete from patient where patient_id=?""";
-        boolean delete=false;
+
+        boolean delete;
 
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt(Patient_Id,id);
+            ps.setInt(PATIENT_ID,id);
             delete= ps.executeUpdate()>0;
         }catch(SQLException e){
             throw new MyClassException("Error Deleting patient details:",e);

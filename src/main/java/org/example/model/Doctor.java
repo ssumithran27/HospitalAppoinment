@@ -37,5 +37,8 @@ public class Doctor {
         this.availability = availability;
     }
 
+    public Doctor(){
+        super();
+    }
 
 }

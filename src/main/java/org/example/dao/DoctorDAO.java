@@ -1,6 +1,6 @@
 package org.example.dao;
 import org.example.configs.DBConnection;
-import org.example.Exception.MyClassException;
+import org.example.exception.MyClassException;
 import org.example.model.Doctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DoctorDAO {
-    private static final Logger logger = LoggerFactory.getLogger(DoctorDAO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DoctorDAO.class);
 
-    static final int Doctor_Name=1;
-    static final int Doctor_Specialization=2;
-    static final int Doctor_Availability=3;
-    static final int Doctor_Id=4;
+    static final int DOCTOR_NAME=1;
+    static final int DOCTOR_SPECIALIZATION=2;
+    static final int DOCTOR_AVAILABILITY=3;
+    static final int DOCTOR_ID=4;
     public void create (Doctor d) {
         String sql="""
                    INSERT INTO doctor(name,specialization,availability)
@@ -25,14 +25,14 @@ public class DoctorDAO {
 
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setString(Doctor_Name,d.getName());
-            ps.setString(Doctor_Specialization,d.getSpecialization());
-            ps.setString(Doctor_Availability,d.getAvailability());
+            ps.setString(DOCTOR_NAME,d.getName());
+            ps.setString(DOCTOR_SPECIALIZATION,d.getSpecialization());
+            ps.setString(DOCTOR_AVAILABILITY,d.getAvailability());
            int affectedRows= ps.executeUpdate();
             if(affectedRows==0){
-                logger.error("Insert failed,no rows affected for doctor{} :",d.getDoctorId());
+                LOGGER.error("Insert failed,no rows affected for doctor{} :",d.getDoctorId());
             }else{
-                logger.info("successfully inserted the doctor details{}: ",d.getDoctorId());
+                LOGGER.info("successfully inserted the doctor details{}: ",d.getDoctorId());
             }
         } catch (SQLException e) {
             throw new MyClassException("Error Creating doctor details:",e);
@@ -65,13 +65,13 @@ public class DoctorDAO {
     {
         String sql= "update doctor set name=?,specialization=?,availability=? where doctor_id=?";
 
-         boolean update=false;
+         boolean update;
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setString (Doctor_Name,d.getName());
-            ps.setString(Doctor_Specialization,d.getSpecialization());
-            ps.setString(Doctor_Availability,d.getAvailability());
-            ps.setInt(Doctor_Id,d.getDoctorId());
+            ps.setString (DOCTOR_NAME,d.getName());
+            ps.setString(DOCTOR_SPECIALIZATION,d.getSpecialization());
+            ps.setString(DOCTOR_AVAILABILITY,d.getAvailability());
+            ps.setInt(DOCTOR_ID,d.getDoctorId());
             update= ps.executeUpdate()>0;
         } catch (SQLException e) {
             throw new MyClassException("Error updating doctor details: ",e);
@@ -82,11 +82,11 @@ public class DoctorDAO {
     public boolean delete(int id)  {
         String sql="""
                    delete from patient where doctor_id=?""";
-        boolean delete=false;
+        boolean delete;
 
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt(Doctor_Id,id);
+            ps.setInt(DOCTOR_ID,id);
             delete= ps.executeUpdate()>0;
         } catch (SQLException e) {
             throw new MyClassException("Error deleting doctor details: ",e);

@@ -1,6 +1,6 @@
 package org.example.dao;
 import org.example.configs.DBConnection;
-import org.example.Exception.MyClassException;
+import org.example.exception.MyClassException;
 import org.example.model.Payment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentDAO {
-    private static final Logger logger = LoggerFactory.getLogger(PaymentDAO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentDAO.class);
 
-    static final int Appointment_Id=1;
-    static final int Payment_Amount=2;
-    static final int Payment_Type=3;
-    static final int Payment_Status=4;
-    static final int Payment_Id=5;
+    static final int APPOINTMENT_ID=1;
+    static final int PAYMENT_AMOUNT=2;
+    static final int PAYMENT_TYPE=3;
+    static final int PAYMENT_STATUS=4;
+    static final int PAYMENT_ID=5;
     public void create(Payment py) throws Exception {
         String sql= """
                 INSERT INTO payment (appointment_id,amount,payment_type,payment_status)
@@ -26,15 +26,15 @@ public class PaymentDAO {
                 """;
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt(Appointment_Id,py.getAppointmentId());
-            ps.setDouble(Payment_Amount,py.getAmount());
-            ps.setString(Payment_Type,py.getPaymentType());
-            ps.setString(Payment_Status,py.getPaymentStatus());
+            ps.setInt(APPOINTMENT_ID,py.getAppointmentId());
+            ps.setDouble(PAYMENT_AMOUNT,py.getAmount());
+            ps.setString(PAYMENT_TYPE,py.getPaymentType());
+            ps.setString(PAYMENT_STATUS,py.getPaymentStatus());
             int affectedRows=ps.executeUpdate();
             if (affectedRows==0){
-                logger.error("Insert failed,no rows affected for payment{} :",py.getPaymentId());
+                LOGGER.error("Insert failed,no rows affected for payment{} :",py.getPaymentId());
             } else{
-                logger.info("successfully inserted payment details{}: ",py.getPaymentId());
+                LOGGER.info("successfully inserted payment details{}: ",py.getPaymentId());
             }
         } catch (SQLException e) {
             throw new MyClassException("Error Creating payment details:",e);
@@ -65,13 +65,14 @@ public class PaymentDAO {
     }
     public boolean update(Payment py)  {
         String sql= " UPDATE payment SET appointment_id=?,amount=?,payment_type=?,payment_status=? where payment_id=?";
-        boolean update=false;
+        boolean update;
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt (Appointment_Id,py.getAppointmentId());
-            ps.setDouble(Payment_Amount,py.getAmount());
-            ps.setString(Payment_Type,py.getPaymentType());
-            ps.setString (Payment_Status,py.getPaymentStatus());
+            ps.setInt (APPOINTMENT_ID,py.getAppointmentId());
+            ps.setDouble(PAYMENT_AMOUNT,py.getAmount());
+            ps.setString(PAYMENT_TYPE,py.getPaymentType());
+            ps.setString (PAYMENT_STATUS,py.getPaymentStatus());
+            ps.setInt(PAYMENT_ID,py.getPaymentId());
             update= ps.executeUpdate()>0;
         }catch(SQLException e){
             throw new MyClassException("Error updating payment details:",e);
@@ -82,11 +83,10 @@ public class PaymentDAO {
     public boolean delete(int id)
     {
         String sql="delete from payment where payment_id=?";
-        boolean delete=false;
-
+        boolean delete;
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt(Payment_Id,id);
+            ps.setInt(1,id);
             delete= ps.executeUpdate()>0;
         }catch (SQLException e) {
             throw new MyClassException("Error deleting payment details:",e);

@@ -58,7 +58,6 @@ private DataSource dataSource;
      verify(preparedStatement).setString(6,"Chennai");
      verify(preparedStatement).setString(7,"AB+");
      verify(preparedStatement).executeUpdate();
-
 }
 @Test
     void testFindAll() throws Exception{

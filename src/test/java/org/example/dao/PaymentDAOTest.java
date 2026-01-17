@@ -92,6 +92,7 @@ public class PaymentDAOTest {
         verify(preparedStatement).setDouble(2, Double.parseDouble("6000.00"));
         verify(preparedStatement).setString(3,"credit");
         verify(preparedStatement).setString(4,"completed");
+        verify(preparedStatement).setInt(5,1);
         verify(preparedStatement).executeUpdate();
 
 
@@ -102,6 +103,6 @@ public class PaymentDAOTest {
         when(preparedStatement.executeUpdate()).thenReturn(1);
         boolean deleted= paymentDAO.delete(1);
         assertTrue(deleted);
-        verify(preparedStatement).setInt(5,1);
+        verify(preparedStatement).setInt(1,1);
     }
 }

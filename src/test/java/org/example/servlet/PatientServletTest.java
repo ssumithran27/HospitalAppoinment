@@ -1,6 +1,6 @@
 package org.example.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.Exception.MyClassException;
+import org.example.exception.MyClassException;
 import org.example.dao.PatientDAO;
 import org.example.model.Patient;
 import org.junit.jupiter.api.BeforeEach;

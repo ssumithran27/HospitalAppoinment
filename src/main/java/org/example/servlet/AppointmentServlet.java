@@ -1,7 +1,5 @@
 package org.example.servlet;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.Exception.MyClassException;
 import org.example.dao.AppointmentDAO;
 import org.example.model.Appointment;
 import org.slf4j.Logger;
@@ -12,20 +10,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serial;
-import java.sql.*;
+
+import java.sql.Date;
 
 @WebServlet("/appointment")
 public class AppointmentServlet extends HttpServlet {
-    @Serial
-    private static final long serialVersionUID=1L;
-    private static final Logger logger= LoggerFactory.getLogger(AppointmentServlet.class);
+
+    private static final Logger LOGGER= LoggerFactory.getLogger(AppointmentServlet.class);
     private final AppointmentDAO ad = new AppointmentDAO();
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
 
         try {
-            logger.info("appointmentServlet-doPost Started");
+            LOGGER.info("appointmentServlet-doPost Started");
             String patientIdStr= request.getParameter("patientId");
             String doctorIdStr=request.getParameter("doctorId");
             String appointmentDateStr=request.getParameter("appointmentDate");
@@ -43,46 +40,49 @@ public class AppointmentServlet extends HttpServlet {
                 patientId=Integer.parseInt(patientIdStr.trim());
                 doctorId=Integer.parseInt(doctorIdStr.trim());
                 appointmentDate=Date.valueOf(appointmentDateStr.trim());
-
-            } catch(Exception e) {
-                throw new MyClassException("error in changing datatype",e);
+            } catch(NumberFormatException e) {
+                LOGGER.warn("Invalid age or date format",e);
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                return;
             }
-
             Appointment a=new Appointment();
             a.setPatientId(patientId);
             a.setDoctorId(doctorId);
             a.setAppointmentDate(appointmentDate);
             a.setAppointmentTime(appointmentTime);
-            ad.create(a);
-            logger.info("appointment details created successfully:"+ a.getAppointmentId());
+           try{
+               ad.create(a);
+            LOGGER.info("appointment details created successfully:{}", a.getAppointmentId());
             response.sendRedirect("appointment.html");
-        } catch (Exception e) {
-            logger.error("Database error",e);
+           }catch(Exception e){
+               LOGGER.error("Database error:",e);
+               response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+           }
+
+        }catch (Exception e) {
+            LOGGER.error("Database error",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error in creating appointment details:",e);
         }
-
-
     }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
     {
-        logger.info("AppointmentServlet-doGet started");
+        LOGGER.info("AppointmentServlet-doGet started");
         response.setContentType("text/html");
         try(PrintWriter out=response.getWriter()) {
             out.println("<h2> Appointment List </h2>");
-            ad.findAll().forEach(Appointment->{
+            ad.findAll().forEach(appointment->{
                 out.println(
-                        Appointment.getAppointmentId()+"|" +Appointment.getPatientId()+"|"+Appointment.getDoctorId()+"|"
-                                +Appointment.getAppointmentDate()+"|"+Appointment.getAppointmentTime()
+                        appointment.getAppointmentId()+"|" +appointment.getPatientId()+"|"+appointment.getDoctorId()+"|"
+                                +appointment.getAppointmentDate()+"|"+appointment.getAppointmentTime()
                 );
-                logger.info("appointment details fetched successfully");
+                LOGGER.info("appointment details fetched successfully");
             });
         } catch (Exception e) {
-            logger.error("Database error",e);
+            LOGGER.error("Database error",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error in fetching appointment details:",e);
+
         }
     }
 
@@ -90,7 +90,7 @@ public class AppointmentServlet extends HttpServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response)  {
 
         try {
-            logger.info("AppointmentServlet-doPut started");
+            LOGGER.info("AppointmentServlet-doPut started");
             ObjectMapper mapper=new ObjectMapper();
             Appointment a=mapper.readValue(request.getInputStream(),Appointment.class);
             boolean updated=ad.update(a);
@@ -104,15 +104,15 @@ public class AppointmentServlet extends HttpServlet {
                 response.getWriter().write("{\"message\":\"Appointment not found\"}");
             }
         } catch(Exception e) {
-            logger.error("Database error",e);
+            LOGGER.error("Database error",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error  Updating Appointment details:",e);
+
         }
     }
     @Override
     public void doDelete(HttpServletRequest request,HttpServletResponse response)  {
         try {
-            logger.info("AppointmentServlet-doDelete started");
+            LOGGER.info("AppointmentServlet-doDelete started");
             String idStr=request.getParameter("id");
 
             if(idStr==null){
@@ -128,9 +128,9 @@ public class AppointmentServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (Exception e) {
-            logger.error("Database error:",e);
+            LOGGER.error("Database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error deleting appointment details:",e);
+
         }
     }
 

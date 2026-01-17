@@ -1,28 +1,26 @@
 package org.example.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.Exception.MyClassException;
 import org.example.dao.DoctorDAO;
 import org.example.model.Doctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.io.Serial;
 
 
 
 @WebServlet("/doctor")
 public class DoctorServlet extends HttpServlet {
-    @Serial
-    private static final long serialVersionUID=1L;
-    private static final Logger logger= LoggerFactory.getLogger(DoctorServlet.class);
+
+    private static final Logger LOGGER= LoggerFactory.getLogger(DoctorServlet.class);
     private final DoctorDAO dd = new DoctorDAO();
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) {
-        logger.info("DoctorServlet-doPost Started");
+    public void doPost(HttpServletRequest request, HttpServletResponse response)  {
+        LOGGER.info("DoctorServlet-doPost Started");
         try {
 
             String name=request.getParameter("name");
@@ -36,12 +34,19 @@ public class DoctorServlet extends HttpServlet {
             d.setName(name);
             d.setSpecialization(specialization);
             d.setAvailability(availability);
-            dd.create(d);
-            logger.info("doctor details created  successfully:{}", d.getName());
+            try{
+                dd.create(d);
+            LOGGER.info("doctor details created  successfully:{}", d.getName());
             response.sendRedirect("doctor.html");
+            }catch(Exception e){
+                LOGGER.error("database error while saving patient",e);
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+
         } catch (Exception e){
+            LOGGER.error("database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error in creating doctor details",e);
+
         }
 
     }
@@ -50,20 +55,20 @@ public class DoctorServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)  {
 
         try (PrintWriter out = response.getWriter()) {
-            logger.info("DoctorServlet-doGet started");
+            LOGGER.info("DoctorServlet-doGet started");
             response.setContentType("text/html");
             out.println("<h2> Doctor List </h2>");
-            dd.findAll().forEach(Doctor -> {
+            dd.findAll().forEach(doctor -> {
                 out.println(
-                        Doctor.getDoctorId()+"|"+Doctor.getName() + "|" + Doctor.getSpecialization() + "|" + Doctor.getAvailability()
+                        doctor.getDoctorId()+"|"+doctor.getName() + "|" + doctor.getSpecialization() + "|" + doctor.getAvailability()
 
                 );
-                logger.info("Doctor details fetched successfully");
+                LOGGER.info("Doctor details fetched successfully");
             });
         } catch (Exception e) {
-
+            LOGGER.error("database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error fetching doctor details:",e);
+
 
         }
     }
@@ -72,7 +77,7 @@ public class DoctorServlet extends HttpServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response)
     {
         try {
-            logger.info("DoctorServlet-doPut started");
+            LOGGER.info("DoctorServlet-doPut started");
             ObjectMapper mapper=new ObjectMapper();
             Doctor d=mapper.readValue(request.getInputStream(), Doctor.class);
             boolean updated=dd.update(d);
@@ -85,16 +90,16 @@ public class DoctorServlet extends HttpServlet {
                 response.getWriter().write("{\"message\":\"Doctor not found\"}");
             }
         } catch(Exception e) {
-
+            LOGGER.error("Database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error updating Doctor details:",e);
+
         }
     }
     @Override
     public void doDelete(HttpServletRequest request,HttpServletResponse response)
     {
         try {
-            logger.info("DoctorServlet-doDelete started");
+            LOGGER.info("DoctorServlet-doDelete started");
             String idStr=request.getParameter("id");
 
             if(idStr==null){
@@ -111,9 +116,9 @@ public class DoctorServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (Exception e) {
-
+            LOGGER.error("Database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new MyClassException("Error deleting doctor details:",e);
+
         }
     }
 }

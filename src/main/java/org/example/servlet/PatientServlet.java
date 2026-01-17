@@ -1,6 +1,5 @@
 package org.example.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.Exception.MyClassException;
 import org.example.dao.PatientDAO;
 import org.example.model.Patient;
 import org.slf4j.Logger;
@@ -10,18 +9,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.io.Serial;
-import java.sql.*;
+import java.sql.Date;
 
 @WebServlet("/patient")
 public class PatientServlet extends HttpServlet {
-    @Serial
-    private static final long serialVersionUID=1L;
-    private static final Logger logger= LoggerFactory.getLogger(PatientServlet.class);
+
+    private static final Logger LOGGER= LoggerFactory.getLogger(PatientServlet.class);
     private final PatientDAO pd = new PatientDAO();
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)  {
-       logger.info("patientServlet-doPost Started");
+       LOGGER.info("patientServlet-doPost Started");
 
        try {
            String name=request.getParameter("name");
@@ -46,9 +43,9 @@ public class PatientServlet extends HttpServlet {
            try{
            age=Integer.parseInt(agestr.trim());
            dob=Date.valueOf(dobstr.trim());
-           }catch(IllegalArgumentException e) {
-              logger.warn("Invalid age or date format",e);
-              response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Invalid age or date format" );
+           }catch(NumberFormatException e) {
+              LOGGER.warn("Invalid age or date format",e);
+              response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
               return;
            }
            Patient p=new Patient();
@@ -59,36 +56,38 @@ public class PatientServlet extends HttpServlet {
            p.setPhone(phone);
            p.setCity(city);
            p.setBloodGroup(bloodGroup);
-           pd.create(p);
-           logger.info("patient saved successfully:{}", p.getName());
-           response.sendRedirect("patient.html");
+           try{
+               pd.create(p);
+               LOGGER.info("patient saved successfully:{}", p.getName());
+               response.sendRedirect("patient.html");
+           }catch(Exception e){
+               LOGGER.error("database error while saving patient",e);
+               response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+           }
        } catch(Exception e){
-           logger.error("Database error",e);
+           LOGGER.error("Database error:",e);
            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-           throw new MyClassException("Error creating patient details",e);
        }
-
 
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-    {
-       logger.info("PatientServlet-doGet started");
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+       LOGGER.info("PatientServlet-doGet started");
        response.setContentType("text/html");
        try(PrintWriter out=response.getWriter()) {
            out.println("<h2> Patient List </h2>");
-           pd.findAll().forEach(Patient->{
+           pd.findAll().forEach(patient->{
                out.println(
-                   Patient.getPatientId()+"|"+Patient.getName()+"|" +Patient.getAge()+"|"+Patient.getGender()+"|"
-                  +"|"+Patient.getDateOfBirth()+"|"+Patient.getBloodGroup()+"|"+ Patient.getPhone()+"|"+Patient.getCity()
+                   patient.getPatientId()+"|"+patient.getName()+"|" +patient.getAge()+"|"+patient.getGender()+"|"
+                  +"|"+patient.getDateOfBirth()+"|"+patient.getBloodGroup()+"|"+ patient.getPhone()+"|"+patient.getCity()
                );
-               logger.info("Patient details fetched successfully");
+               LOGGER.info("Patient details fetched successfully");
            });
        } catch(Exception e){
-           logger.error("database error:",e);
+           LOGGER.error("database error:",e);
            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-          throw new MyClassException("Error fetching patient details:",e);
+
        }
     }
 
@@ -97,7 +96,7 @@ public class PatientServlet extends HttpServlet {
     {
 
         try {
-            logger.info("PatientServlet-doPut started");
+            LOGGER.info("PatientServlet-doPut started");
             ObjectMapper mapper=new ObjectMapper();
             Patient p=mapper.readValue(request.getInputStream(),Patient.class);
             boolean updated=pd.update(p);
@@ -110,6 +109,7 @@ public class PatientServlet extends HttpServlet {
                 response.getWriter().write("{\"message\":\"Patient not found\"}");
             }
         } catch(Exception e) {
+            LOGGER.error("Database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
         }
@@ -118,7 +118,7 @@ public class PatientServlet extends HttpServlet {
     public void doDelete(HttpServletRequest request,HttpServletResponse response)  {
 
         try {
-            logger.info("PatientServlet-doDelete started");
+            LOGGER.info("PatientServlet-doDelete started");
             String idStr=request.getParameter("id");
             if(idStr==null){
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,"patient_id is required");
@@ -133,6 +133,7 @@ public class PatientServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (Exception e) {
+            LOGGER.error("database error:",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
         }

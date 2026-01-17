@@ -1,6 +1,7 @@
 package org.example.dao;
+
 import org.example.configs.DBConnection;
-import org.example.Exception.MyClassException;
+import org.example.exception.MyClassException;
 import org.example.model.Appointment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppointmentDAO {
-    private static final Logger logger = LoggerFactory.getLogger(AppointmentDAO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppointmentDAO.class);
 
-    static final int Patient_Id =1;
-    static final int Doctor_Id=2;
-    static final int Appointment_Date=3;
-    static final int Appointment_Time=4;
-    static final int Appointment_Id=5;
+    static final int PATIENT_ID =1;
+    static final int DOCTOR_ID=2;
+    static final int APPOINTMENT_DATE=3;
+    static final int APPOINTMENT_TIME=4;
+    static final int APPOINTMENT_ID=5;
     public void create(Appointment a)  {
         String sql= """
                 INSERT INTO appointment (patient_id,doctor_id,appointment_date,
@@ -24,15 +25,15 @@ public class AppointmentDAO {
                 """;
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps= con.prepareStatement(sql)) {
-            ps.setInt(Patient_Id,a.getPatientId());
-            ps.setInt(Doctor_Id,a.getDoctorId());
-            ps.setDate(Appointment_Date,(Date) a.getAppointmentDate());
-            ps.setString(Appointment_Time,a.getAppointmentTime());
+            ps.setInt(PATIENT_ID,a.getPatientId());
+            ps.setInt(DOCTOR_ID,a.getDoctorId());
+            ps.setDate(APPOINTMENT_DATE, a.getAppointmentDate());
+            ps.setString(APPOINTMENT_TIME,a.getAppointmentTime());
             int affectedRows=ps.executeUpdate();
             if(affectedRows==0){
-                logger.error("Insert failed,no rows affected for appointment{} :",a.getAppointmentId());
+                LOGGER.error("Insert failed,no rows affected for appointment{} :",a.getAppointmentId());
             } else{
-                logger.info("successfully inserted the Appointment details{}: ",a.getAppointmentId());
+                LOGGER.info("successfully inserted the Appointment details{}: ",a.getAppointmentId());
             }
         } catch (SQLException e) {
          throw new MyClassException("error in creating appointment",e);
@@ -65,14 +66,14 @@ public class AppointmentDAO {
 
     public boolean update(Appointment a) {
         String sql= "update patient set patient_id=?,doctor_id=?,appointment_date=?,appointment_time=?,status=?where appointment_id=?";
-        boolean update=false;
+        boolean update;
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
-            ps.setInt(Patient_Id,a.getPatientId());
-            ps.setInt(Doctor_Id,a.getDoctorId());
-            ps.setDate(Appointment_Date,a.getAppointmentDate());
-            ps.setString (Appointment_Time,a.getAppointmentTime());
-            ps.setInt(Appointment_Id,a.getAppointmentId());
+            ps.setInt(PATIENT_ID,a.getPatientId());
+            ps.setInt(DOCTOR_ID,a.getDoctorId());
+            ps.setDate(APPOINTMENT_DATE,a.getAppointmentDate());
+            ps.setString (APPOINTMENT_TIME,a.getAppointmentTime());
+            ps.setInt(APPOINTMENT_ID,a.getAppointmentId());
             update= ps.executeUpdate()>0;
         }catch(SQLException e){
            throw new MyClassException("Error updating appointment details:",e);
@@ -82,10 +83,7 @@ public class AppointmentDAO {
 
     public  boolean delete(int id) {
         String sql=" delete from appointment where appointment_id=?";
-
-
-        boolean delete=false;
-
+        boolean delete;
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps=con.prepareStatement(sql)) {
             ps.setInt(1,id);
