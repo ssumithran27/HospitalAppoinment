@@ -4,14 +4,13 @@ import org.example.dao.PatientDAO;
 import org.example.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.sql.Date;
 
-@WebServlet("/patient")
+
 public class PatientServlet extends HttpServlet {
 
     private static final Logger LOGGER= LoggerFactory.getLogger(PatientServlet.class);

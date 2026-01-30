@@ -4,16 +4,14 @@ import org.example.dao.AppointmentDAO;
 import org.example.model.Appointment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import java.sql.Date;
 
-@WebServlet("/appointment")
+
 public class AppointmentServlet extends HttpServlet {
 
     private static final Logger LOGGER= LoggerFactory.getLogger(AppointmentServlet.class);
