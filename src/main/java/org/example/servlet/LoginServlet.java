@@ -27,6 +27,7 @@ public class LoginServlet extends HttpServlet {
             response.getWriter().write("Token: " + JWTtoken);
             LOG.info("Token Generated");
         }catch (Exception e) {
+            LOG.warn("Invalid Token Generated");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             throw new MyClassException("Failed",e);
         }
