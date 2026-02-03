@@ -19,7 +19,7 @@ public class PaymentDAO {
     static final int PAYMENT_TYPE=3;
     static final int PAYMENT_STATUS=4;
     static final int PAYMENT_ID=5;
-    public void create(Payment py) throws Exception {
+    public void create(Payment py) throws MyClassException {
         String sql= """
                 INSERT INTO payment (appointment_id,amount,payment_type,payment_status)
                 VALUES(?,?,?,?)
@@ -80,8 +80,7 @@ public class PaymentDAO {
         return update;
     }
 
-    public boolean delete(int id)
-    {
+    public boolean delete(int id) {
         String sql="delete from payment where payment_id=?";
         boolean delete;
         try(Connection con= DBConnection.getConnect().getConnection();

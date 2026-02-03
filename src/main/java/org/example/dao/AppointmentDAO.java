@@ -6,7 +6,10 @@ import org.example.model.Appointment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +53,7 @@ public class AppointmentDAO {
             PreparedStatement ps =con.prepareStatement(sql);
             ResultSet rs=ps.executeQuery()) {
             while (rs.next()){
+
                 Appointment a=new Appointment();
                 a.setAppointmentId(rs.getInt("appointmentId"));
                 a.setPatientId(rs.getInt("patientId"));

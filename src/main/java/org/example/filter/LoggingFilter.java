@@ -1,19 +1,22 @@
 package org.example.filter;
 
+import org.example.dao.AppointmentDAO;
 import org.example.util.JwtToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class LoginFilter implements Filter {
+public class LoggingFilter implements Filter {
     private static final int SUB_STRING=7;
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggingFilter.class);
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws
-            IOException, ServletException {
+            throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
@@ -46,6 +49,7 @@ public class LoginFilter implements Filter {
             }
 
         } catch (Exception e) {
+            LOGGER.warn("Invalid Token");
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.getWriter().write("Invalid token");
 

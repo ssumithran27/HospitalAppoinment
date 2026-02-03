@@ -23,7 +23,7 @@ public class PatientDAO {
     static final int PATIENT_BLOODGROUP=7;
     static final int PATIENT_ID=8;
     private static final Logger LOGGER = LoggerFactory.getLogger(PatientDAO.class);
-    public void create (Patient p) throws Exception {
+    public void create (Patient p) throws MyClassException {
         String sql= " INSERT INTO patient (name,age,gender,date_of_birth,phone,city,blood_group) values (?,?,?,?,?,?,?)";
         try(Connection con= DBConnection.getConnect().getConnection();
             PreparedStatement ps =con.prepareStatement(sql)) {
@@ -37,8 +37,7 @@ public class PatientDAO {
             int affectedRows=ps.executeUpdate();
             if(affectedRows==0){
                 LOGGER.error("Insert failed,no rows affected for patient{} :",p.getPatientId());
-            }
-            else{
+            }else{
                 LOGGER.info("successfully inserted the patient details{}: ",p.getPatientId());
             }
         } catch (SQLException e) {
